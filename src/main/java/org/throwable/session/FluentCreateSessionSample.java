@@ -33,17 +33,17 @@ public class FluentCreateSessionSample extends BaseConnectionInfo{
 				.build();
 		client.start();
 		//创建节点
-		client.create().forPath("path");
-		client.create().forPath("path","init".getBytes());
-		client.create().withMode(CreateMode.EPHEMERAL).forPath("path");
-		client.create().withMode(CreateMode.EPHEMERAL).forPath("path","init".getBytes());
+		client.create().forPath("/path");
+		client.create().forPath("/path1","init".getBytes());
+		client.create().withMode(CreateMode.EPHEMERAL).forPath("/path_ephemeral");
+		client.create().withMode(CreateMode.EPHEMERAL).forPath("/path_ephemeral1","init".getBytes());
 		client.create()
 				.creatingParentContainersIfNeeded()
 				.withMode(CreateMode.EPHEMERAL)
-				.forPath("path","init".getBytes());
+				.forPath("/path_ephemeral2/path","init".getBytes());
 		//删除节点
-		client.delete().forPath("path");
-		client.delete().deletingChildrenIfNeeded().forPath("path");
+		client.delete().forPath("/path");
+		client.delete().deletingChildrenIfNeeded().forPath("/path");
         client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(10086).forPath("path");
         client.delete().guaranteed().forPath("path");
         //读取数据
@@ -70,6 +70,21 @@ public class FluentCreateSessionSample extends BaseConnectionInfo{
 				.and()
 				.commit();
 
+		//检查是否存在
+		client.checkExists().forPath("path");
+
+		//获取所有的子节点
+		client.getChildren().forPath("path");
+
+		//原子事务
+		client.inTransaction().check().forPath("path")
+				.and()
+				.create().withMode(CreateMode.EPHEMERAL).forPath("path","data".getBytes())
+				.and()
+				.setData().withVersion(10086).forPath("path","data2".getBytes())
+				.and()
+				.commit();
+
 		//异步化Api
 		Executor executor = Executors.newFixedThreadPool(2);
 		client.create()
@@ -78,7 +93,7 @@ public class FluentCreateSessionSample extends BaseConnectionInfo{
 				.inBackground((curatorFramework, curatorEvent) -> {
 					System.out.println(String.format("eventType:%s,resultCode:%s",curatorEvent.getType(),curatorEvent.getResultCode()));
 				},executor)
-				.forPath("path");
+				.forPath("/path_async");
 		Thread.sleep(Integer.MAX_VALUE);
 	}
 }

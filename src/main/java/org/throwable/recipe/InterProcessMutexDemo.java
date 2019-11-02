@@ -37,6 +37,7 @@ public class InterProcessMutexDemo {
 		try {
 			System.out.println(clientName + " get the lock");
 			resource.use(); //access resource exclusively
+			Thread.sleep(5000);
 		} finally {
 			System.out.println(clientName + " releasing the lock");
 			lock.release(); // always release the lock in a finally block
@@ -57,7 +58,7 @@ public class InterProcessMutexDemo {
 				Callable<Void> task = new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
-						CuratorFramework client = CuratorFrameworkFactory.newClient(server.getConnectString(), new ExponentialBackoffRetry(1000, 3));
+						CuratorFramework client = CuratorFrameworkFactory.newClient(server.getConnectString(), new ExponentialBackoffRetry(10000, 6));
 						try {
 							client.start();
 							final InterProcessMutexDemo example = new InterProcessMutexDemo(client, PATH, resource, "Client " + index);

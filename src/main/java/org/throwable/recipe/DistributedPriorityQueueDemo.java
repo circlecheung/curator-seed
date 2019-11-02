@@ -19,7 +19,7 @@ import org.apache.curator.utils.CloseableUtils;
  * @description
  * @since 2017/5/12 1:57
  */
-public class DistributedPriorityQueueDemo {
+public class  DistributedPriorityQueueDemo {
 
 	private static final String PATH = "/example/queue";
 
